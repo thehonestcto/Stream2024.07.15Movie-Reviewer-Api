@@ -1,11 +1,13 @@
 using MovieReviewer.Api.Data;
 using MovieReviewer.Api.Features;
 using MovieReviewer.Api.Features.Movie;
+using MovieReviewer.Api.Shared.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.Configure<OmDbSettings>(builder.Configuration.GetSection(nameof(OmDbSettings)));
 builder.Services.AddHttpClient<OmDbClient>(client =>
 {
     client.BaseAddress = new Uri("https://www.omdbapi.com/");

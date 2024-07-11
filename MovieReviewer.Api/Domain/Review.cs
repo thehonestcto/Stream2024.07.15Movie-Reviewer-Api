@@ -10,6 +10,6 @@ namespace MovieReviewer.Api.Domain
         public int ReviewScore { get; set; }
         public int MovieId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public bool IsDeleted { get; set; } = false;
+        public bool IsDisabled { get; set; } = false;
     }
 }

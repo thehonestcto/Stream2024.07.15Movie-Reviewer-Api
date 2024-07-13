@@ -8,6 +8,7 @@ namespace MovieReviewer.Api.Features.Movie
     {
         public Task<ResponseFromService<int>> CreateMovie(string imdbId);
         public Task<ResponseFromService<MovieDto>> GetMovieData(int movieId);
+        public Task<ResponseFromService<IReadOnlyList<MovieDto>>> GetAllMovieData();
         public Task<ResponseFromService> DeleteMovie(int movieId);
     }
 }

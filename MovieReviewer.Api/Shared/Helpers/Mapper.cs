@@ -14,7 +14,7 @@ namespace MovieReviewer.Api.Shared.Helpers
                 MovieLanguage = movie.MovieLanguage,
                 ImdbId = movie.ImdbId,
                 ImdbRating = movie.ImdbRating,
-                IsDeleted = movie.IsDeleted,
+                IsDeleted = movie.IsDisabled,
             };
         }
     }

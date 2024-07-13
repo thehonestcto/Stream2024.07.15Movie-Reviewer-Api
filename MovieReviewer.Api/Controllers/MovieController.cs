@@ -26,8 +26,20 @@ namespace MovieReviewer.Api.Controllers
 
             return BadRequest(response.Errors);
         }
-
         [HttpGet]
+
+        public async Task<IActionResult> GetAll()
+        {
+            var items = await _movieService.GetAllMovieData();
+
+            if (items.IsSuccess)
+            {
+                return Ok(items.Data);
+            }
+
+            return BadRequest(items.Errors);
+        }
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetMovieData(int id)
         {
             var response = await _movieService.GetMovieData(id);
@@ -40,7 +52,7 @@ namespace MovieReviewer.Api.Controllers
             return BadRequest(response.Errors);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovieData(int id)
         {
             //
@@ -51,12 +63,6 @@ namespace MovieReviewer.Api.Controllers
             }
 
             return BadRequest(response.Errors);
-        }
-
-        [HttpPatch]
-        public async Task<IActionResult> UpdateMovieData(int id)
-        {
-
         }
     }
 }

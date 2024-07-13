@@ -44,6 +44,16 @@ namespace MovieReviewer.Api.Features.Movie
             return new ResponseFromService { IsSuccess = true };
         }
 
+        public async Task<ResponseFromService<IReadOnlyList<MovieDto>>> GetAllMovieData()
+        {
+            var allMovieData = await _context.Movies.Select(x => x.ToMovieDto()).ToListAsync();
+
+            if (allMovieData.Count > 0)
+                return new ResponseFromService<IReadOnlyList<MovieDto>> { IsSuccess = true, Data = allMovieData };
+
+           return new ResponseFromService<IReadOnlyList<MovieDto>> { IsSuccess = false, Errors = new List<string> { "no data" } };
+        }
+
         public async Task<ResponseFromService<MovieDto>> GetMovieData(int movieId)
         {
             var response = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);

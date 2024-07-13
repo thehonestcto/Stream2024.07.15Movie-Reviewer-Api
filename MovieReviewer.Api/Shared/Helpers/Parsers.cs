@@ -58,7 +58,7 @@ namespace MovieReviewer.Api.Shared.Helpers
                 Title = thisisRawMovieData.Title,
                 ImdbId = thisisRawMovieData.ImDbId,
                 ImdbRating = double.Parse(thisisRawMovieData.ImDbRating),
-                IsDeleted = false,
+                IsDisabled = false,
                 LastUpdatedAt = DateTime.UtcNow,
                 MovieRating = Parsers.ParseMeAMovieRating(thisisRawMovieData.Rated),
                 MovieLanguage = Parsers.ParseMeAMovieLanguage(thisisRawMovieData.Language),

@@ -46,7 +46,7 @@ namespace MovieReviewer.Api.Features.Movie
 
         public async Task<ResponseFromService<IReadOnlyList<MovieDto>>> GetAllMovieData()
         {
-            var allMovieData = await _context.Movies.Select(x => x.ToMovieDto()).ToListAsync();
+            var allMovieData = await _context.Movies.Where(x => x.IsDisabled == false).Select(x => x.ToMovieDto()).ToListAsync();
 
             if (allMovieData.Count > 0)
                 return new ResponseFromService<IReadOnlyList<MovieDto>> { IsSuccess = true, Data = allMovieData };
@@ -59,6 +59,11 @@ namespace MovieReviewer.Api.Features.Movie
             var response = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
 
             if (response is null)
+            {
+                return new ResponseFromService<MovieDto> { IsSuccess = false, Errors = new List<string> { "No Movie exists" } };
+            }
+
+            if (response.IsDisabled)
             {
                 return new ResponseFromService<MovieDto> { IsSuccess = false, Errors = new List<string> { "No Movie exists" } };
             }

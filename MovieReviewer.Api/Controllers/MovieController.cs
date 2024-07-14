@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using MovieReviewer.Api.Features.Movie;
 using MovieReviewer.Api.Shared.Dtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieReviewer.Api.Controllers
 {
@@ -16,62 +19,39 @@ namespace MovieReviewer.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMovie(string imdbId)
+        [TranslateResultToActionResult]
+        public async Task<Result<int>> CreateMovie([Required] string imdbId)
         {
-            var response = await _movieService.CreateMovie(imdbId);
-
-            if (response.IsSuccess)
-            {
-                return Ok(new {response.Data});
-            }
-
-            return BadRequest(response.Errors);
+            return await _movieService.CreateMovie(imdbId);
         }
+
         [HttpGet]
-
-        public async Task<IActionResult> GetAll()
+        [TranslateResultToActionResult]
+        public async Task<Result<List<MovieViewModel>>> GetAllMovies()
         {
-            var items = await _movieService.GetAllMovieData();
-
-            if (items.IsSuccess)
-            {
-                return Ok(items.Data);
-            }
-
-            return BadRequest(items.Errors);
+            return await _movieService.GetAllMovieData();
         }
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetMovieData(int id)
+        [TranslateResultToActionResult]
+        public async Task<Result<MovieViewModel>> GetMovieData(int id)
         {
             var response = await _movieService.GetMovieData(id);
-
-            if (response.IsSuccess)
-            {
-                return Ok(response.Data);
-            }
-
-            return BadRequest(response.Errors);
+            return response;
         }
 
 
         [HttpPut("{id}")]
-
         public async Task<IActionResult> UpdateMovieData(int id, MovieDto movieDto)
         {
-
+            throw new NotImplementedException();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMovieData(int id)
+        public async Task<Result> DeleteMovieData(int id)
         {
-            //
             var response = await _movieService.DeleteMovie(id);
-            if (response.IsSuccess)
-            {
-                return NoContent();
-            }
-
-            return BadRequest(response.Errors);
+            return response;
         }
     }
 }

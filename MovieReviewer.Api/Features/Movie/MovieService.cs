@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using MovieReviewer.Api.Data;
-using MovieReviewer.Api.Shared;
 using MovieReviewer.Api.Shared.Dtos;
 using MovieReviewer.Api.Shared.Helpers;
-using System.Security.Cryptography.X509Certificates;
 
 namespace MovieReviewer.Api.Features.Movie
 {
@@ -11,85 +12,67 @@ namespace MovieReviewer.Api.Features.Movie
     {
         private readonly ApplicationDbContext _context;
         private readonly OmDbClient _omDbClient;
+        private readonly ValidationResult _error;
         public MovieService(ApplicationDbContext context, OmDbClient omDbClient)
         {
             _context = context;
             _omDbClient = omDbClient;
+            _error = new ValidationResult();
         }
 
-        public async Task<ResponseFromService<int>> CreateMovie(string imdbId)
+        public async Task<Result<int>> CreateMovie(string imdbId)
         {
+            //check if imdbid is in the db
+            if (await _context.Movies.FirstOrDefaultAsync(x => x.ImdbId == imdbId) is not null)
+            {
+                _error.Errors.Add(new ValidationFailure(nameof(imdbId), $"Movie with IMDB id {imdbId} exists in the database"));
+                return Result.Invalid(_error.AsErrors());
+            }
+
+            //call external api
             var response = await _omDbClient.GetMovieDataFromExternalApi(imdbId);
             if (response.IsSuccess == false)
-                return new ResponseFromService<int> { IsSuccess = response.IsSuccess, Errors = response.Errors };
-            else
             {
-                await _context.Movies.AddAsync(response.Data);
-                await _context.SaveChangesAsync();
-                return new ResponseFromService<int> { IsSuccess = response.IsSuccess, Data = response.Data.Id };
+                _error.Errors.Add(new ValidationFailure(nameof(imdbId), $"{response.Errors.First()}"));
+                return Result.Invalid(_error.AsErrors());
             }
-        }
-
-        public async Task<ResponseFromService> DeleteMovie(int movieId)
-        {
-            var response = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-
-            if (response is null)
-            {
-                return new ResponseFromService { IsSuccess = false, Errors = new List<string> { "Item isn't in the db" } };
-            }
-
-            response.IsDisabled = true;
-            response.LastUpdatedAt = DateTime.UtcNow;
+            
+            await _context.Movies.AddAsync(response.Data);
             await _context.SaveChangesAsync();
-            return new ResponseFromService { IsSuccess = true };
+            return Result.Success(response.Data.Id);
         }
 
-        public async Task<ResponseFromService<IReadOnlyList<MovieDto>>> GetAllMovieData()
-        {
-            var allMovieData = await _context.Movies.Where(x => x.IsDisabled == false).Select(x => x.ToMovieDto()).ToListAsync();
-
-            if (allMovieData.Count > 0)
-                return new ResponseFromService<IReadOnlyList<MovieDto>> { IsSuccess = true, Data = allMovieData };
-
-           return new ResponseFromService<IReadOnlyList<MovieDto>> { IsSuccess = false, Errors = new List<string> { "no data" } };
-        }
-
-        public async Task<ResponseFromService<MovieDto>> GetMovieData(int movieId)
-        {
-            var response = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-
-            if (response is null)
-            {
-                return new ResponseFromService<MovieDto> { IsSuccess = false, Errors = new List<string> { "No Movie exists" } };
-            }
-
-            if (response.IsDisabled)
-            {
-                return new ResponseFromService<MovieDto> { IsSuccess = false, Errors = new List<string> { "No Movie exists" } };
-            }
-
-            return new ResponseFromService<MovieDto> { IsSuccess = true, Data = response.ToMovieDto() };
-        }
-
-
-        public async Task UpdateMovieData(int movieId, PUTMovieDto movie)
+        public async Task<Result> DeleteMovie(int movieId)
         {
             var item = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-            
-            //TODO: Come back to this laeter
             if (item is null)
             {
-                //error here
+                _error.Errors.Add(new ValidationFailure(nameof(movieId), $"Movie with id {movieId} doesn't exists in the database"));
+                return Result.Invalid(_error.AsErrors());
             }
 
+            item.IsDisabled = true;
             item.LastUpdatedAt = DateTime.UtcNow;
-            item.Title = movie.Title;
-            item.MovieRating = movie.MovieRating;
-            item.MovieLanguage = movie.MovieLanguage;
-            item.ImdbRating = movie.ImdbRating;
-            item.IsDisabled = movie.IsDisabled;
+            await _context.SaveChangesAsync();
+            return Result.Success();
+        }
 
+        public async Task<Result<List<MovieViewModel>>> GetAllMovieData()
+        {
+            var items = await _context.Movies.Select(x => x.ToMovieViewModel()).ToListAsync();
+            return Result.Success(items);
+        }
+
+        public async Task<Result<MovieViewModel>> GetMovieData(int movieId)
+        {
+            var item = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
+            if (item is null)
+            {
+                _error.Errors.Add(new ValidationFailure(nameof(movieId), $"Movie with id {movieId} doesn't exists in the database"));
+                return Result.Invalid(_error.AsErrors());
+            }
+
+            return Result.Success(item.ToMovieViewModel());
         }
     }
 }

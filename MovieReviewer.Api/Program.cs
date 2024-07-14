@@ -1,7 +1,10 @@
+using FluentValidation;
 using MovieReviewer.Api.Data;
 using MovieReviewer.Api.Features;
 using MovieReviewer.Api.Features.Movie;
 using MovieReviewer.Api.Features.Review;
+using MovieReviewer.Api.ObjectValidations;
+using MovieReviewer.Api.Shared.Dtos;
 using MovieReviewer.Api.Shared.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,7 @@ builder.Services.AddHttpClient<OmDbClient>(client =>
 
 builder.Services.AddTransient<IMovieService, MovieService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IValidator<ReviewInputModel>, ReviewInputValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
+using Ardalis.Result.FluentValidation;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using MovieReviewer.Api.Domain;
 using MovieReviewer.Api.Features.Review;
 using MovieReviewer.Api.Shared;
 using MovieReviewer.Api.Shared.Dtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieReviewer.Api.Controllers
 {
@@ -11,48 +16,50 @@ namespace MovieReviewer.Api.Controllers
     public class ReviewController : Controller
     {
         private IReviewService _reviewService;
-
-        public ReviewController(IReviewService reviewService)
+        private IValidator<ReviewInputModel> _validator;
+        public ReviewController(IReviewService reviewService, IValidator<ReviewInputModel> validator)
         {
             _reviewService = reviewService;
+            _validator = validator;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateReview(ReviewDto reivewItem, int movieId)
+        [TranslateResultToActionResult]
+        public async Task<Result<int>> CreateReview(ReviewInputModel review, [Required] int movieId)
         {
-            var response = await _reviewService.CreateReview(reivewItem, movieId);
-            return PerformTheReturnType(response);
+            var result = await _validator.ValidateAsync(review);
+            if (!result.IsValid)
+            {
+                return Result<int>.Invalid(result.AsErrors());
+            }
+
+            //rename this later
+            var response = await _reviewService.CreateReview(review, movieId);
+            return response;
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetReviewById(int id)
+        [TranslateResultToActionResult]
+        public async Task<Result<ReviewViewModel>> GetReviewById(int id)
         {
-            var response = await _reviewService.GetById(id);
-            return PerformTheReturnType(response);
+            var response = await _reviewService.GetReviewById(id);
+            return response;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllReviews()
+        [TranslateResultToActionResult]
+        public async Task<Result<List<ReviewViewModel>>> GetAllReviews()
         {
-            var response = await _reviewService.GetAllReviewsAsync();
-            return PerformTheReturnType(response);
+            var response = await _reviewService.GetAllReviews();
+            return response;
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReview(int id)
+        [TranslateResultToActionResult]
+        public async Task<Result> DeleteReview(int id)
         {
             var response = await _reviewService.DeleteReview(id);
-            return PerformTheReturnType(response);
-        }
-
-        private IActionResult PerformTheReturnType<T>(ResponseFromService<T> response)
-        {
-            if (response.IsSuccess)
-            {
-                return Ok(new { response.Data });
-            }
-
-            return BadRequest(response.Errors);
+            return response;
         }
     }
 }

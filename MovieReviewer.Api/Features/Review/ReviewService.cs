@@ -1,34 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using MovieReviewer.Api.Data;
-using MovieReviewer.Api.Shared;
+using MovieReviewer.Api.Domain;
 using MovieReviewer.Api.Shared.Dtos;
+using MovieReviewer.Api.Shared.Helpers;
 
 namespace MovieReviewer.Api.Features.Review
 {
     public class ReviewService : IReviewService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ValidationResult _errors;
         public ReviewService(ApplicationDbContext context)
         {
             _context = context;
+            _errors = new ValidationResult();
         }
 
-        public async Task<ResponseFromService<List<Domain.Review>>> GetAllReviewsAsync()
+        public async Task<Result<int>> CreateReview(ReviewInputModel review, int movieId)
         {
-            var items = await _context.Reviews.Where(x => x.IsDisabled == false).ToListAsync();
-            if (items.Count > 0)
-            {
-                return new ResponseFromService<List<Domain.Review>> { IsSuccess = true, Data = items };
-            }
-
-            return new ResponseFromService<List<Domain.Review>> { IsSuccess = false, Errors = new List<string> { "No items in reviews" } }; 
-        }
-
-        public async Task<ResponseFromService<int>> CreateReview(ReviewDto review, int movieId)
-        {
+            //Check if movie is in the Db & Return Failure
             if (await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId) is null)
             {
-                return new ResponseFromService<int> { IsSuccess = false, Errors = new List<string> { "Movie isn't in the db" } };
+                _errors.Errors.Add(new ValidationFailure(nameof(movieId), $"Movie with id {movieId} Not Found"));
+                return Result.Invalid(_errors.AsErrors());
             }
 
             var item = new Domain.Review
@@ -41,41 +38,39 @@ namespace MovieReviewer.Api.Features.Review
 
             await _context.Reviews.AddAsync(item);
             await _context.SaveChangesAsync();
-            return new ResponseFromService<int> { IsSuccess = true, Data = item.Id };
+            return Result.Success(item.Id);
         }
 
-        public Task UpdateRview()
+        public async Task<Result> DeleteReview(int reviewId)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ResponseFromService<int>> DeleteReview(int id)
-        {
-            var itemById = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == id);
-            if (itemById is null)
+            var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
+            if (item is null)
             {
-                return new ResponseFromService<int> { IsSuccess = false, Errors = new List<string> { "Review doesn't exist" } };
+                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
+                return Result.Invalid(_errors.AsErrors());
             }
 
-            itemById.IsDisabled = true;
+            item.IsDisabled = true;
             await _context.SaveChangesAsync();
-            return new ResponseFromService<int> { IsSuccess = true , Data = itemById.Id };
+            return Result.Success();
         }
 
-        public async Task<ResponseFromService<Domain.Review>> GetById(int id)
+        public async Task<Result<List<ReviewViewModel>>> GetAllReviews()
         {
-            var itemById = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == id);
-            if (itemById is null)
+            var items = await  _context.Reviews.Select(x => x.ToReviewViewModel()).ToListAsync();
+            return Result.Success(items);
+        }
+
+        public async Task<Result<ReviewViewModel>> GetReviewById(int reviewId)
+        {
+            var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
+            if (item is null)
             {
-                return new ResponseFromService<Domain.Review> { IsSuccess = false, Errors = new List<string> { "Review isn't there" } };
+                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Movie with id {reviewId} Not Found"));
+                return Result.Invalid(_errors.AsErrors());
             }
 
-            if (itemById.IsDisabled)
-            {
-                return new ResponseFromService<Domain.Review> { IsSuccess = false, Errors = new List<string> { "Review isn't there" } };
-            }
-
-            return new ResponseFromService<Domain.Review> {IsSuccess = true, Data = itemById};
+            return Result.Success(item.ToReviewViewModel());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MovieReviewer.Api.Shared.Dtos;
 
-namespace MovieReviewer.Api.ObjectValidations
+namespace MovieReviewer.Api.Features.Review
 {
     public class ReviewInputValidator : AbstractValidator<ReviewInputModel>
     {

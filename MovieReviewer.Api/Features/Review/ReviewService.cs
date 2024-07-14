@@ -3,7 +3,6 @@ using Ardalis.Result.FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using MovieReviewer.Api.Data;
-using MovieReviewer.Api.Domain;
 using MovieReviewer.Api.Shared.Dtos;
 using MovieReviewer.Api.Shared.Helpers;
 
@@ -66,7 +65,7 @@ namespace MovieReviewer.Api.Features.Review
             var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
             if (item is null)
             {
-                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Movie with id {reviewId} Not Found"));
+                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
                 return Result.Invalid(_errors.AsErrors());
             }
 

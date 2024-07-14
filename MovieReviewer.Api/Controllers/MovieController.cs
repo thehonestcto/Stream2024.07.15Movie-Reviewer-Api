@@ -41,13 +41,8 @@ namespace MovieReviewer.Api.Controllers
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMovieData(int id, MovieDto movieDto)
-        {
-            throw new NotImplementedException();
-        }
-
         [HttpDelete("{id}")]
+        [TranslateResultToActionResult]
         public async Task<Result> DeleteMovieData(int id)
         {
             var response = await _movieService.DeleteMovie(id);

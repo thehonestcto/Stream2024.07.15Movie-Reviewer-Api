@@ -3,6 +3,7 @@ using MovieReviewer.Api.Data;
 using MovieReviewer.Api.Shared;
 using MovieReviewer.Api.Shared.Dtos;
 using MovieReviewer.Api.Shared.Helpers;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MovieReviewer.Api.Features.Movie
 {
@@ -69,6 +70,26 @@ namespace MovieReviewer.Api.Features.Movie
             }
 
             return new ResponseFromService<MovieDto> { IsSuccess = true, Data = response.ToMovieDto() };
+        }
+
+
+        public async Task UpdateMovieData(int movieId, PUTMovieDto movie)
+        {
+            var item = await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
+            
+            //TODO: Come back to this laeter
+            if (item is null)
+            {
+                //error here
+            }
+
+            item.LastUpdatedAt = DateTime.UtcNow;
+            item.Title = movie.Title;
+            item.MovieRating = movie.MovieRating;
+            item.MovieLanguage = movie.MovieLanguage;
+            item.ImdbRating = movie.ImdbRating;
+            item.IsDisabled = movie.IsDisabled;
+
         }
     }
 }

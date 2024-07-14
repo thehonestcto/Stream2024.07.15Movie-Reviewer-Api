@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MovieReviewer.Api.Features.Movie;
+using MovieReviewer.Api.Shared.Dtos;
 
 namespace MovieReviewer.Api.Controllers
 {
@@ -50,6 +51,14 @@ namespace MovieReviewer.Api.Controllers
             }
 
             return BadRequest(response.Errors);
+        }
+
+
+        [HttpPut("{id}")]
+
+        public async Task<IActionResult> UpdateMovieData(int id, MovieDto movieDto)
+        {
+
         }
 
         [HttpDelete("{id}")]

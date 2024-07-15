@@ -1,7 +1,5 @@
-﻿namespace MovieReviewer.Api.Domain.Enums
-{
-    public enum RatingSystem
-    {
+﻿namespace MovieReviewer.Api.control.services.imdb.Enums {
+    public enum RatingSystem {
         White,
         Yellow,
         Purple,

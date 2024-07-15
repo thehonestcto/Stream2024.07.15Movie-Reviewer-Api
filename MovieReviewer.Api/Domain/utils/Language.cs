@@ -1,7 +1,5 @@
-﻿namespace MovieReviewer.Api.Domain.Enums
-{
-    public enum Language
-    {
+﻿namespace MovieReviewer.Api.control.services.imdb.Enums {
+    public enum Language {
         Other,
         Ar,
         En,

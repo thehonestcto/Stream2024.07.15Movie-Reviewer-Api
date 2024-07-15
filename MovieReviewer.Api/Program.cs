@@ -1,26 +1,17 @@
-using FluentValidation;
+using MovieReviewer.Api.control.repository;
+using MovieReviewer.Api.control.services.imdb;
 using MovieReviewer.Api.Data;
-using MovieReviewer.Api.Features;
-using MovieReviewer.Api.Features.Movie;
-using MovieReviewer.Api.Features.Review;
-using MovieReviewer.Api.Shared.Dtos;
-using MovieReviewer.Api.Shared.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>();
-builder.Services.Configure<OmDbSettings>(builder.Configuration.GetSection(nameof(OmDbSettings)));
-builder.Services.AddHttpClient<OmDbClient>(client =>
-{
-    client.BaseAddress = new Uri("https://www.omdbapi.com/");
-});
+builder.Services.Configure<Settings>(builder.Configuration.GetSection("OmDbSettings"));
+builder.Services.AddHttpClient<ImdbS>(client => { client.BaseAddress = new Uri("https://www.omdbapi.com/"); });
 
-builder.Services.AddTransient<IMovieService, MovieService>();
-builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<IValidator<ReviewCreateModel>, ReviewCreateValidator>();
-builder.Services.AddScoped<IValidator<ReviewUpdateModel>,  ReviewUpdateValidator>();
-builder.Services.AddScoped<IMovieClient, OmDbClient>();
+builder.Services.AddTransient<MovieR, MovieR>();
+builder.Services.AddScoped<ReviewR, ReviewR>();
+builder.Services.AddScoped<ImdbS, ImdbS>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -30,8 +21,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }

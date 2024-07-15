@@ -1,14 +1,10 @@
-﻿using MovieReviewer.Api.Domain;
-using MovieReviewer.Api.Domain.Enums;
+﻿using MovieReviewer.Api.control.services.imdb;
+using MovieReviewer.Api.control.services.imdb.Enums;
 
-namespace MovieReviewer.Api.Shared.Helpers
-{
-    public static class Parsers
-    {
-        private static Language ParseMeAMovieLanguage(string language)
-        {
-            return language.ToLower() switch
-            {
+namespace MovieReviewer.Api.control {
+    public static class Utils {
+        private static Language ParseMeAMovieLanguage(string language) {
+            return language.ToLower() switch {
                 "english" => Language.En,
                 "german" or "deutsche" => Language.De,
                 "french" => Language.Fr,
@@ -21,10 +17,8 @@ namespace MovieReviewer.Api.Shared.Helpers
             };
         }
 
-        private static RatingSystem ParseMeAMovieRating(string rated)
-        {
-            return rated.ToLower() switch
-            {
+        private static RatingSystem ParseMeAMovieRating(string rated) {
+            return rated.ToLower() switch {
                 "g" => RatingSystem.White,
                 "pg" => RatingSystem.Yellow,
                 "pg-13" => RatingSystem.Purple,
@@ -35,10 +29,8 @@ namespace MovieReviewer.Api.Shared.Helpers
         }
 
 
-        public static Movie ParseMovieData(this MovieInformation RawMovieData)
-        {
-            var movieData = new Movie
-            {
+        public static Movie ParseMovieData(this ImdbMovie RawMovieData) {
+            var movieData = new Movie {
                 Title = RawMovieData.Title,
                 ImdbId = RawMovieData.ImDbId,
                 ImdbRating = double.Parse(RawMovieData.ImDbRating),

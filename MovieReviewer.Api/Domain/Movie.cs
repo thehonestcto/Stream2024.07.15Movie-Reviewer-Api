@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MovieReviewer.Api.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+using MovieReviewer.Api.control.services.imdb.Enums;
 
-namespace MovieReviewer.Api.Domain
-{
+namespace MovieReviewer.Api.control.services.imdb {
     [Index(nameof(ImdbId), IsUnique = true)]
-    public class Movie : BaseEntity
-    {
+    public class Movie : BaseEntity {
         public required string Title { get; set; }
-        public required string Plot { get; set; } 
+        public required string Plot { get; set; }
         public RatingSystem MovieRating { get; set; }
         public Language MovieLanguage { get; set; }
         public required string ImdbId { get; set; }

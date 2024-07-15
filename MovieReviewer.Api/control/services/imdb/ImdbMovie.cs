@@ -1,7 +1,6 @@
-﻿namespace MovieReviewer.Api.Domain;
+﻿namespace MovieReviewer.Api.control.services.imdb;
 
-public class MovieInformation
-{
+public class ImdbMovie {
     public required string Title { get; set; }
     public required string Rated { get; set; }
     public required string Plot { get; set; }

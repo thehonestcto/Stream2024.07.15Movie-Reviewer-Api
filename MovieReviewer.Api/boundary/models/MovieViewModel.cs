@@ -1,8 +1,7 @@
-﻿using MovieReviewer.Api.Domain.Enums;
-namespace MovieReviewer.Api.Shared.Dtos
-{
-    public class MovieViewModel
-    {
+﻿using MovieReviewer.Api.control.services.imdb.Enums;
+
+namespace MovieReviewer.Api.control {
+    public class MovieViewModel {
         public int Id { get; set; }
         public required string Title { get; set; }
         public RatingSystem MovieRating { get; set; }

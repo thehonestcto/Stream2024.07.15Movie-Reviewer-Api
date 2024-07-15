@@ -3,6 +3,7 @@ namespace MovieReviewer.Api.Shared.Dtos
 {
     public class MovieViewModel
     {
+        public int Id { get; set; }
         public required string Title { get; set; }
         public RatingSystem MovieRating { get; set; }
         public Language MovieLanguage { get; set; }

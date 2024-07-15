@@ -14,9 +14,9 @@ namespace MovieReviewer.Api.Controllers
     [TranslateResultToActionResult]
     public class ReviewController : Controller
     {
-        private IReviewService _reviewService;
-        private IValidator<ReviewCreateModel> _inputValidator;
-        private IValidator<ReviewUpdateModel> _updateValidator;
+        private readonly IReviewService _reviewService;
+        private readonly IValidator<ReviewCreateModel> _inputValidator;
+        private readonly IValidator<ReviewUpdateModel> _updateValidator;
         public ReviewController(IReviewService reviewService, IValidator<ReviewCreateModel> inputValidator, IValidator<ReviewUpdateModel> updateValidator)
         {
             _reviewService = reviewService;
@@ -29,34 +29,28 @@ namespace MovieReviewer.Api.Controllers
         {
             var result = await _inputValidator.ValidateAsync(review);
             if (!result.IsValid)
-            {
-                return Result<int>.Invalid(result.AsErrors());
-            }
+                return Result.Invalid(result.AsErrors());
 
             //rename this later
-            var response = await _reviewService.CreateReview(review, movieId);
-            return response;
+            return await _reviewService.CreateReview(review, movieId);
         }
 
         [HttpGet("{id}")]
         public async Task<Result<ReviewViewModel>> GetReviewById([Required] int id)
         {
-            var response = await _reviewService.GetReviewById(id);
-            return response;
+            return await _reviewService.GetReviewById(id);
         }
 
         [HttpGet]
         public async Task<Result<List<ReviewViewModel>>> GetAllReviews()
         {
-            var response = await _reviewService.GetAllReviews();
-            return response;
+            return await _reviewService.GetAllReviews();
         }
 
         [HttpDelete("{id}")]
         public async Task<Result> DeleteReview([Required] int id)
         {
-            var response = await _reviewService.DeleteReview(id);
-            return response;
+            return await _reviewService.DeleteReview(id);
         }
 
         [HttpPut("{id}")]
@@ -64,9 +58,7 @@ namespace MovieReviewer.Api.Controllers
         {
             var result = await _updateValidator.ValidateAsync(review);
             if (!result.IsValid)
-            {
                 return Result.Invalid(result.AsErrors());
-            }
 
             return await _reviewService.UpdateReview(id, review);
         }

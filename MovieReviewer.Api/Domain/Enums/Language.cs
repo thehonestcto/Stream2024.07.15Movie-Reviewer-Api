@@ -3,13 +3,13 @@
     public enum Language
     {
         Other,
-        AR,
-        EN,
-        ZH,
-        KO,
-        FR,
-        DE,
-        JA,
-        HI
+        Ar,
+        En,
+        Zh,
+        Ko,
+        Fr,
+        De,
+        Ja,
+        Hi
     }
 }

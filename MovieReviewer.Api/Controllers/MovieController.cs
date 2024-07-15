@@ -29,22 +29,20 @@ namespace MovieReviewer.Api.Controllers
         [HttpGet]
         public async Task<Result<List<MovieViewModel>>> GetAllMovies()
         {
-            return await _movieService.GetAllMovieData();
+            return await _movieService.GetAllMovies();
         }
 
         [HttpGet("{id}")]
         public async Task<Result<MovieViewModel>> GetMovieData(int id)
         {
-            var response = await _movieService.GetMovieData(id);
-            return response;
+            return await _movieService.GetMovieById(id);
         }
 
 
         [HttpDelete("{id}")]
         public async Task<Result> DeleteMovieData(int id)
         {
-            var response = await _movieService.DeleteMovie(id);
-            return response;
+            return await _movieService.DeleteMovie(id);
         }
     }
 }

@@ -11,81 +11,55 @@ namespace MovieReviewer.Api.Features.Review
     public class ReviewService : IReviewService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ValidationResult _errors;
         public ReviewService(ApplicationDbContext context)
         {
             _context = context;
-            _errors = new ValidationResult();
         }
 
         public async Task<Result<int>> CreateReview(ReviewCreateModel review, int movieId)
         {
-            //Check if movie is in the Db & Return Failure
+            //TODO: I am checking if movie is in the db. Should this even be here? Come back and perform test/write tests
             if (await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId) is null)
-            {
-                _errors.Errors.Add(new ValidationFailure(nameof(movieId), $"Movie with id {movieId} Not Found"));
-                return Result.Invalid(_errors.AsErrors());
-            }
+                return Result.NotFound();
 
-            var item = new Domain.Review
-            {
-                MovieId = movieId,
-                ReviewContent = review.ReviewContent,
-                ReviewScore = review.ReviewScore,
-
-            };
-
+            var item = review.ToReviewObject(movieId);
             await _context.Reviews.AddAsync(item);
             await _context.SaveChangesAsync();
             return Result.Success(item.Id);
         }
-
-        public async Task<Result> DeleteReview(int reviewId)
+        public async Task<Result<ReviewViewModel>> GetReviewById(int reviewId)
         {
             var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
-            if (item is null)
-            {
-                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
-                return Result.Invalid(_errors.AsErrors());
-            }
-
-            item.IsDisabled = true;
-            await _context.SaveChangesAsync();
-            return Result.Success();
+            return item is null ? Result.NotFound() : Result.Success(item.ToReviewViewModel());
         }
-
         public async Task<Result<List<ReviewViewModel>>> GetAllReviews()
         {
             var items = await  _context.Reviews.Select(x => x.ToReviewViewModel()).ToListAsync();
             return Result.Success(items);
         }
 
-        public async Task<Result<ReviewViewModel>> GetReviewById(int reviewId)
+        public async Task<Result> DeleteReview(int reviewId)
         {
             var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
             if (item is null)
-            {
-                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
-                return Result.Invalid(_errors.AsErrors());
-            }
+                return Result.NotFound();
 
-            return Result.Success(item.ToReviewViewModel());
+            item.IsDisabled = true;
+            await _context.SaveChangesAsync();
+            return Result.NoContent();
         }
-
         public async Task<Result> UpdateReview(int reviewId, ReviewUpdateModel review)
         {
             var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
-            if(item is null)
-            {
-                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
-                return Result.Invalid(_errors.AsErrors());
-            }
-
+            if (item is null)
+                return Result.NotFound();
+            
+            
             item.IsDisabled = review.IsDisabled;
             item.ReviewContent = review.ReviewContent;
             item.ReviewScore = review.ReviewScore;
             await _context.SaveChangesAsync();
-            return Result.Success();
+            return Result.NoContent();
         }
     }
 }

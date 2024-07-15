@@ -9,6 +9,7 @@ namespace MovieReviewer.Api.Shared.Helpers
         {
             return new MovieViewModel
             {
+                Id = movie.Id,
                 Title = movie.Title,
                 MovieRating = movie.MovieRating,
                 MovieLanguage = movie.MovieLanguage,
@@ -21,10 +22,20 @@ namespace MovieReviewer.Api.Shared.Helpers
         {
             return new ReviewViewModel
             {
+                Id = review.Id,
                 ReviewContent = review.ReviewContent,
                 ReviewScore = review.ReviewScore,
                 MovieId = review.MovieId,
-                CreatedAt = review.CreatedAt,
+            };
+        }
+
+        public static Review ToReviewObject(this ReviewCreateModel review, int movieId)
+        {
+            return new Review
+            {
+                MovieId = movieId,
+                ReviewContent = review.ReviewContent,
+                ReviewScore = review.ReviewScore,
             };
         }
     }

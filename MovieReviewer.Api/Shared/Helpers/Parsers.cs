@@ -5,66 +5,50 @@ namespace MovieReviewer.Api.Shared.Helpers
 {
     public static class Parsers
     {
-        public static Language ParseMeAMovieLanguage(string language)
+        private static Language ParseMeAMovieLanguage(string language)
         {
-            switch (language.ToLower())
+            return language.ToLower() switch
             {
-                case "english":
-                    return Language.EN;
-                case "german":
-                case "deutsche":
-                    return Language.DE;
-                case "french":
-                    return Language.FR;
-                case "korean":
-                    return Language.KO;
-                case "hindi":
-                    return Language.HI;
-                case "arabic":
-                    return Language.AR;
-                case "japanese":
-                    return Language.JA;
-                case "chinese":
-                    return Language.ZH;
-                default:
-                    return Language.Other;
-            }
+                "english" => Language.En,
+                "german" or "deutsche" => Language.De,
+                "french" => Language.Fr,
+                "korean" => Language.Ko,
+                "hindi" => Language.Hi,
+                "arabic" => Language.Ar,
+                "japanese" => Language.Ja,
+                "chinese" => Language.Zh,
+                _ => Language.Other
+            };
         }
 
-        public static RatingSystem ParseMeAMovieRating(string rated)
+        private static RatingSystem ParseMeAMovieRating(string rated)
         {
-            switch (rated.ToLower())
+            return rated.ToLower() switch
             {
-                case "g":
-                    return RatingSystem.White;
-                case "pg":
-                    return RatingSystem.Yellow;
-                case "pg-13":
-                    return RatingSystem.Purple;
-                case "r":
-                    return RatingSystem.Red;
-                case "nc-17":
-                    return RatingSystem.Black;
-                default:
-                    return RatingSystem.NotRated;
-            }
+                "g" => RatingSystem.White,
+                "pg" => RatingSystem.Yellow,
+                "pg-13" => RatingSystem.Purple,
+                "r" => RatingSystem.Red,
+                "nc-17" => RatingSystem.Black,
+                _ => RatingSystem.NotRated
+            };
         }
 
 
-        public static Movie ParsedMovieData(OmDbMovieDataResponse thisisRawMovieData)
+        public static Movie ParseMovieData(this MovieInformation RawMovieData)
         {
-            var data = new Movie
+            var movieData = new Movie
             {
-                Title = thisisRawMovieData.Title,
-                ImdbId = thisisRawMovieData.ImDbId,
-                ImdbRating = double.Parse(thisisRawMovieData.ImDbRating),
+                Title = RawMovieData.Title,
+                ImdbId = RawMovieData.ImDbId,
+                ImdbRating = double.Parse(RawMovieData.ImDbRating),
                 IsDisabled = false,
                 LastUpdatedAt = DateTime.UtcNow,
-                MovieRating = Parsers.ParseMeAMovieRating(thisisRawMovieData.Rated),
-                MovieLanguage = Parsers.ParseMeAMovieLanguage(thisisRawMovieData.Language),
+                MovieRating = ParseMeAMovieRating(RawMovieData.Rated),
+                MovieLanguage = ParseMeAMovieLanguage(RawMovieData.Language),
+                Plot = RawMovieData.Plot,
             };
-
-            return data;
+            return movieData;
         }
     }
 }

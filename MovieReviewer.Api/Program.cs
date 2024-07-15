@@ -20,6 +20,7 @@ builder.Services.AddTransient<IMovieService, MovieService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IValidator<ReviewCreateModel>, ReviewCreateValidator>();
 builder.Services.AddScoped<IValidator<ReviewUpdateModel>,  ReviewUpdateValidator>();
+builder.Services.AddScoped<IMovieClient, OmDbClient>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

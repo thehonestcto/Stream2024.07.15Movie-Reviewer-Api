@@ -2,7 +2,6 @@
 using MovieReviewer.Api.Shared.Helpers;
 using MovieReviewer.Api.Shared;
 using MovieReviewer.Api.Shared.Settings;
-using MovieReviewer.Api.Domain;
 using Newtonsoft.Json;
 
 namespace MovieReviewer.Api.Features

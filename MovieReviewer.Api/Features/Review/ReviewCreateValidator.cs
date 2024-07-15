@@ -3,9 +3,9 @@ using MovieReviewer.Api.Shared.Dtos;
 
 namespace MovieReviewer.Api.Features.Review
 {
-    public class ReviewInputValidator : AbstractValidator<ReviewInputModel>
+    public class ReviewCreateValidator: AbstractValidator<ReviewCreateModel>
     {
-        public ReviewInputValidator()
+        public ReviewCreateValidator()
         {
             RuleFor(x => x.ReviewContent).NotEmpty();
             RuleFor(x => x.ReviewScore).InclusiveBetween(1, 5);

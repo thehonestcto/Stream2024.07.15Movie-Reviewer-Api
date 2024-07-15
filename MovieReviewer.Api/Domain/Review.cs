@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MovieReviewer.Api.Domain
+﻿namespace MovieReviewer.Api.Domain
 {
     public class Review : BaseEntity
     {

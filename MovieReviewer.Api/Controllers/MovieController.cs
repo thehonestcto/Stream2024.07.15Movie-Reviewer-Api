@@ -9,6 +9,8 @@ namespace MovieReviewer.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [TranslateResultToActionResult]
+
     public class MovieController : Controller
     {
         private readonly IMovieService _movieService;
@@ -19,21 +21,18 @@ namespace MovieReviewer.Api.Controllers
         }
 
         [HttpPost]
-        [TranslateResultToActionResult]
         public async Task<Result<int>> CreateMovie([Required] string imdbId)
         {
             return await _movieService.CreateMovie(imdbId);
         }
 
         [HttpGet]
-        [TranslateResultToActionResult]
         public async Task<Result<List<MovieViewModel>>> GetAllMovies()
         {
             return await _movieService.GetAllMovieData();
         }
 
         [HttpGet("{id}")]
-        [TranslateResultToActionResult]
         public async Task<Result<MovieViewModel>> GetMovieData(int id)
         {
             var response = await _movieService.GetMovieData(id);
@@ -42,7 +41,6 @@ namespace MovieReviewer.Api.Controllers
 
 
         [HttpDelete("{id}")]
-        [TranslateResultToActionResult]
         public async Task<Result> DeleteMovieData(int id)
         {
             var response = await _movieService.DeleteMovie(id);

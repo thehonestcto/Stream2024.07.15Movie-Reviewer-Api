@@ -3,9 +3,7 @@ using Ardalis.Result.AspNetCore;
 using Ardalis.Result.FluentValidation;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using MovieReviewer.Api.Domain;
 using MovieReviewer.Api.Features.Review;
-using MovieReviewer.Api.Shared;
 using MovieReviewer.Api.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,21 +11,23 @@ namespace MovieReviewer.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [TranslateResultToActionResult]
     public class ReviewController : Controller
     {
         private IReviewService _reviewService;
-        private IValidator<ReviewInputModel> _validator;
-        public ReviewController(IReviewService reviewService, IValidator<ReviewInputModel> validator)
+        private IValidator<ReviewCreateModel> _inputValidator;
+        private IValidator<ReviewUpdateModel> _updateValidator;
+        public ReviewController(IReviewService reviewService, IValidator<ReviewCreateModel> inputValidator, IValidator<ReviewUpdateModel> updateValidator)
         {
             _reviewService = reviewService;
-            _validator = validator;
+            _inputValidator = inputValidator;
+            _updateValidator = updateValidator;
         }
 
         [HttpPost]
-        [TranslateResultToActionResult]
-        public async Task<Result<int>> CreateReview(ReviewInputModel review, [Required] int movieId)
+        public async Task<Result<int>> CreateReview(ReviewCreateModel review, [Required] int movieId)
         {
-            var result = await _validator.ValidateAsync(review);
+            var result = await _inputValidator.ValidateAsync(review);
             if (!result.IsValid)
             {
                 return Result<int>.Invalid(result.AsErrors());
@@ -39,15 +39,13 @@ namespace MovieReviewer.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [TranslateResultToActionResult]
-        public async Task<Result<ReviewViewModel>> GetReviewById(int id)
+        public async Task<Result<ReviewViewModel>> GetReviewById([Required] int id)
         {
             var response = await _reviewService.GetReviewById(id);
             return response;
         }
 
         [HttpGet]
-        [TranslateResultToActionResult]
         public async Task<Result<List<ReviewViewModel>>> GetAllReviews()
         {
             var response = await _reviewService.GetAllReviews();
@@ -55,11 +53,22 @@ namespace MovieReviewer.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [TranslateResultToActionResult]
-        public async Task<Result> DeleteReview(int id)
+        public async Task<Result> DeleteReview([Required] int id)
         {
             var response = await _reviewService.DeleteReview(id);
             return response;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<Result> UpdateReview([Required]int id, ReviewUpdateModel review)
+        {
+            var result = await _updateValidator.ValidateAsync(review);
+            if (!result.IsValid)
+            {
+                return Result.Invalid(result.AsErrors());
+            }
+
+            return await _reviewService.UpdateReview(id, review);
         }
     }
 }

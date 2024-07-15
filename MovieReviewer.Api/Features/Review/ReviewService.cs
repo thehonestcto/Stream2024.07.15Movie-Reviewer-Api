@@ -18,7 +18,7 @@ namespace MovieReviewer.Api.Features.Review
             _errors = new ValidationResult();
         }
 
-        public async Task<Result<int>> CreateReview(ReviewInputModel review, int movieId)
+        public async Task<Result<int>> CreateReview(ReviewCreateModel review, int movieId)
         {
             //Check if movie is in the Db & Return Failure
             if (await _context.Movies.FirstOrDefaultAsync(x => x.Id == movieId) is null)
@@ -70,6 +70,22 @@ namespace MovieReviewer.Api.Features.Review
             }
 
             return Result.Success(item.ToReviewViewModel());
+        }
+
+        public async Task<Result> UpdateReview(int reviewId, ReviewUpdateModel review)
+        {
+            var item = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
+            if(item is null)
+            {
+                _errors.Errors.Add(new ValidationFailure(nameof(reviewId), $"Review with id {reviewId} Not Found"));
+                return Result.Invalid(_errors.AsErrors());
+            }
+
+            item.IsDisabled = review.IsDisabled;
+            item.ReviewContent = review.ReviewContent;
+            item.ReviewScore = review.ReviewScore;
+            await _context.SaveChangesAsync();
+            return Result.Success();
         }
     }
 }
